@@ -54,7 +54,7 @@ private[sql] class DiskPartition (
   private val outStream: OutputStream = Files.newOutputStream(path)
   private val inStream: InputStream = Files.newInputStream(path)
   private val chunkSizes: JavaArrayList[Int] = new JavaArrayList[Int]()
-  private var writtenToDisk: Boolean = false
+  private var writtenToDisk: Boolean = true
   private var inputClosed: Boolean = false
 
   /**
@@ -70,10 +70,8 @@ private[sql] class DiskPartition (
     data.add(row)
     writtenToDisk = false
 
-    if (measurePartitionSize() > blockSize) {
+    if (measurePartitionSize() > blockSize)
       spillPartitionToDisk()
-      data.clear()
-    }
   }
 
   /**
@@ -97,6 +95,7 @@ private[sql] class DiskPartition (
 
     Files.write(path, bytes, StandardOpenOption.APPEND)
     writtenToDisk = true
+    data.clear()        /* ADDED BY US */
   }
 
   /**
@@ -118,16 +117,15 @@ private[sql] class DiskPartition (
       override def next() = {
         // Fetch next chunk if no more rows in current iterator
         // Return null if no more chunks (as opposed to undefined behavior)
-        if (!currentIterator.hasNext) {
-          if (fetchNextChunk())
-            currentIterator = CS143Utils.getListFromBytes(byteArray).iterator.asScala
-          else
-            currentIterator = null
-        }
-        if (currentIterator != null)
+        if (currentIterator.hasNext) {
           currentIterator.next()
-        else
-          null
+        } else {
+          if (fetchNextChunk()) {
+            currentIterator = CS143Utils.getListFromBytes(byteArray).iterator.asScala
+            currentIterator.next()
+          } else
+            null
+        }
       }
 
       override def hasNext() = {
@@ -160,13 +158,10 @@ private[sql] class DiskPartition (
    * also be closed.
    */
   def closeInput() = {
-    if (!writtenToDisk) {
-      // Spill only if data has unwritten Rows
-      if (data.size() > 0)
-        spillPartitionToDisk()
-      data.clear()
-      writtenToDisk = true
-    }
+    // Spill only if data has unwritten Rows
+    // It will never be the case that writtenToDisk == false and data.size() == 0
+    if (!writtenToDisk)
+      spillPartitionToDisk()
 
     outStream.close()
     inputClosed = true
@@ -206,7 +201,7 @@ private[sql] object DiskHashedRelation {
                 size: Int = 64,
                 blockSize: Int = 64000) = {
             
-    val arrParts:Array[DiskPartition] = new Array[DiskPartition](size)
+    val arrParts: Array[DiskPartition] = new Array[DiskPartition](size)
     for (i <- 0 until arrParts.size)
       arrParts(i) = new DiskPartition("foo" + i, blockSize) 
 
