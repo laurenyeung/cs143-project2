@@ -44,4 +44,10 @@ class CS143UtilsSuite extends FunSuite {
 
     assert(CS143Utils.getUdfFromExpressions(attributes) == udf)
   }
+
+  test("sequence with no UDF") {
+    val attributes: Seq[Expression] = Seq() ++ studentAttributes ++ Seq()
+
+    assert(CS143Utils.getUdfFromExpressions(attributes) == null)
+  }
 }
