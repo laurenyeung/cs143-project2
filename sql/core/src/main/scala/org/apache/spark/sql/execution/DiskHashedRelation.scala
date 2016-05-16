@@ -37,7 +37,7 @@ protected [sql] final class GeneralDiskHashedRelation(partitions: Array[DiskPart
 
   override def getIterator() = {
     // IMPLEMENTING YOU
-      partitions.iterator
+    partitions.iterator
   }
 
   override def closeAllPartitions() = {
@@ -94,7 +94,6 @@ private[sql] class DiskPartition (
 
     // This array list stores the sizes of chunks written in order to read them back correctly.
     chunkSizes.add(bytes.size)
-    println(chunkSizes);
 
     Files.write(path, bytes, StandardOpenOption.APPEND)
     writtenToDisk = true
@@ -145,7 +144,6 @@ private[sql] class DiskPartition (
         // Get byte array of next chunk and convert into a JavaArrayList[Row]
         if (chunkSizeIterator.hasNext) {
           val nextChunkSize = chunkSizeIterator.next()
-          println(nextChunkSize)
           byteArray = CS143Utils.getNextChunkBytes(inStream, nextChunkSize, byteArray)
           true
         } else
@@ -210,11 +208,12 @@ private[sql] object DiskHashedRelation {
             
     val arrParts:Array[DiskPartition] = new Array[DiskPartition](size)
     for (i <- 0 until arrParts.size)
-        arrParts(i) = new DiskPartition("foo" + i, blockSize) 
+      arrParts(i) = new DiskPartition("foo" + i, blockSize) 
+
     while (input.hasNext){
-        val row = input.next;
-        val diskPartNum = keyGenerator(row).hashCode() % size
-        arrParts(diskPartNum).insert(row)
+      val row = input.next;
+      val diskPartNum = keyGenerator(row).hashCode() % size
+      arrParts(diskPartNum).insert(row)
     }
     arrParts.foreach(dPart => dPart.closeInput())
 
