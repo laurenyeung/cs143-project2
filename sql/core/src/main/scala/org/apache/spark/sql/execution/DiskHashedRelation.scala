@@ -63,7 +63,16 @@ private[sql] class DiskPartition (
    * @param row the [[Row]] we are adding
    */
   def insert(row: Row) = {
-    // IMPLEMENT ME
+    if (inputClosed)
+      throw new SparkException("Can not insert data when inputClosed == true")
+
+    data.add(row)
+    writtenToDisk = false
+
+    if (measurePartitionSize() > blockSize) {
+      spillPartitionToDisk()
+      data.clear()
+    }
   }
 
   /**
@@ -84,6 +93,7 @@ private[sql] class DiskPartition (
 
     // This array list stores the sizes of chunks written in order to read them back correctly.
     chunkSizes.add(bytes.size)
+    println(chunkSizes);
 
     Files.write(path, bytes, StandardOpenOption.APPEND)
     writtenToDisk = true
@@ -106,13 +116,22 @@ private[sql] class DiskPartition (
       var byteArray: Array[Byte] = null
 
       override def next() = {
-        // IMPLEMENT ME
-        null
+        // Fetch next chunk if no more rows in current iterator
+        // Return null if no more chunks (as opposed to undefined behavior)
+        if (!currentIterator.hasNext) {
+          if (fetchNextChunk())
+            currentIterator = CS143Utils.getListFromBytes(byteArray).iterator.asScala
+          else
+            currentIterator = null
+        }
+        if (currentIterator != null)
+          currentIterator.next()
+        else
+          null
       }
 
       override def hasNext() = {
-        // IMPLEMENT ME
-        false
+        currentIterator.hasNext || chunkSizeIterator.hasNext
       }
 
       /**
@@ -122,8 +141,14 @@ private[sql] class DiskPartition (
        * @return true unless the iterator is empty.
        */
       private[this] def fetchNextChunk(): Boolean = {
-        // IMPLEMENT ME
-        false
+        // Get byte array of next chunk and convert into a JavaArrayList[Row]
+        if (chunkSizeIterator.hasNext) {
+          val nextChunkSize = chunkSizeIterator.next()
+          println(nextChunkSize)
+          byteArray = CS143Utils.getNextChunkBytes(inStream, nextChunkSize, byteArray)
+          true
+        } else
+          false
       }
     }
   }
@@ -136,7 +161,15 @@ private[sql] class DiskPartition (
    * also be closed.
    */
   def closeInput() = {
-    // IMPLEMENT ME
+    if (!writtenToDisk) {
+      // Spill only if data has unwritten Rows
+      if (data.size() > 0)
+        spillPartitionToDisk()
+      data.clear()
+      writtenToDisk = true
+    }
+
+    outStream.close()
     inputClosed = true
   }
 
