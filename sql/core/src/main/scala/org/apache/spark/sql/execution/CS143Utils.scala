@@ -194,21 +194,24 @@ object CachingIteratorGenerator {
         }
 
         def next() = {
-          val row = input.next()
+          if (hasNext) {
+            val row = input.next()
 
-          // Cache the udfProject'd result (if not already cached)
-          val key = cacheKeyProjection(row)
-          if (!cache.containsKey(key)) {
-            val newRow = udfProject(row)
-            cache.put(key, newRow)
-          }
+            // Cache the udfProject'd result (if not already cached)
+            val key = cacheKeyProjection(row)
+            if (!cache.containsKey(key)) {
+              val newRow = udfProject(row)
+              cache.put(key, newRow)
+            }
 
-          val udfRow = cache.get(key)
-          val preUdfRow = preUdfProjection(row)
-          val postUdfRow = postUdfProjection(row)
+            val udfRow = cache.get(key)
+            val preUdfRow = preUdfProjection(row)
+            val postUdfRow = postUdfProjection(row)
 
-          // Return the concatenation (Row is a Seq itself!)
-          Row.fromSeq(preUdfRow ++ udfRow ++ postUdfRow)
+            // Return the concatenation (Row is a Seq itself!)
+            Row.fromSeq(preUdfRow ++ udfRow ++ postUdfRow)
+          } else
+            null
         }
       }
     }
