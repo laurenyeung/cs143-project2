@@ -5,25 +5,23 @@ Name: Michael Wang
 ID:204458659
 ================================================================
 Task 1: Implementing DiskPartition and GeneralDiskHashedRelation
-Implemented insert (inserts data to DiskPartition)
-            closeInput(closes input for DiskPartition)
-            getData (reads from DiskPartition)
+Implemented DiskPartition#insert (inserts data)
+            DiskPartition#closeInput(closes input)
+            DiskPartition#getData (returns an iterator over its data)
 
 ================================================================
 Task 2: Implementing object DiskHashedRelation
-Implemented getIterator (gets the Iterator of rows)
-			closeAllPartitions (closes partitions in relation)
-			DiskHashedRelation#apply (creates relation of rows)
+Implemented GeneralDiskHashedRelation#getIterator (returns an iterator over its DiskPartitions)
+            GeneralDiskHashedRelation#closeAllPartitions (closes all DiskPartitions)
+            DiskHashedRelation#apply (creates and returns a DiskHashedRelation from an Iterator[Row])
 
 ================================================================
 Task 3: Implementing CS143Utils methods
-Implemented getUdfFromExpression
-			Iterator methods in
-			CachingIteratorGenerator#apply
-			(hasNext, next)
+Implemented CS143Utils#getUdfFromExpression (returns the last UDF (if any) from a Seq[Expression])
+            Iterator[Row] methods (hasNext, next) in CachingIteratorGenerator#apply
 
 ================================================================
 Task 4: Implementing PartitionProject
-Implemented generateIterator.
+Implemented generateIterator (hasNext, next, fetchNextPartition)
 
 ================================================================
