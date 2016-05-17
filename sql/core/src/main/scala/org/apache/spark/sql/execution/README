@@ -1,18 +1,25 @@
 Name: Lauren Yeung
-UID: 104456482
+ID:104456482
+
 Name: Michael Wang
-UID: 204458659
-==========================================
-Task 1:
+ID:204458659
+================================================================
+Task 1: Implementing DiskPartition and GeneralDiskHashedRelation
+Implemented insert, closeInput, and getData.
 
-==========================================
-Task 2:
+================================================================
+Task 2: Implementing object DiskHashedRelation
+Implemented getIterator, closeAllPartitions, and
+DiskHashedRelation#apply.
 
-==========================================
-Task 3:
+================================================================
+Task 3: Implementing CS143Utils methods
+Implemented getUdfFromExpression and Iterator methods in
+CachingIteratorGenerator#apply
 
-==========================================
-Task 4:
 
-==========================================
+================================================================
+Task 4: Implementing PartitionProject
+Implemented generateIterator.
 
+================================================================
