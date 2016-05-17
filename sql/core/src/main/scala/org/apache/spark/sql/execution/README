@@ -8,12 +8,14 @@ Task 1: Implementing DiskPartition and GeneralDiskHashedRelation
 Implemented DiskPartition#insert (inserts data)
             DiskPartition#closeInput(closes input)
             DiskPartition#getData (returns an iterator over its data)
+            GeneralDiskHashedRelation#getIterator (returns an iterator over its DiskPartitions)
+            GeneralDiskHashedRelation#closeAllPartitions (closes all DiskPartitions)
+In addition DiskPartition#writtenToDisk is initialized to true for convenience
+            DiskPartition#spillPartitionToDisk calls data.clear() after writing data
 
 ================================================================
 Task 2: Implementing object DiskHashedRelation
-Implemented GeneralDiskHashedRelation#getIterator (returns an iterator over its DiskPartitions)
-            GeneralDiskHashedRelation#closeAllPartitions (closes all DiskPartitions)
-            DiskHashedRelation#apply (creates and returns a DiskHashedRelation from an Iterator[Row])
+Implemented DiskHashedRelation#apply (creates and returns a DiskHashedRelation from an Iterator[Row])
 
 ================================================================
 Task 3: Implementing CS143Utils methods
@@ -22,6 +24,6 @@ Implemented CS143Utils#getUdfFromExpression (returns the last UDF (if any) from 
 
 ================================================================
 Task 4: Implementing PartitionProject
-Implemented generateIterator (hasNext, next, fetchNextPartition)
+Implemented PartitionProject#generateIterator (methods: hasNext, next, fetchNextPartition)
 
 ================================================================
